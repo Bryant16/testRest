@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Cozy Corner Pub - Your Neighborhood Gathering Spot</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter for body, Oswald for headings (modern yet pub-friendly) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom CSS styles to complement Tailwind and create the pub vibe */
+        :root {
+            --primary-dark: #2c3e50; /* Dark Charcoal */
+            --secondary-brown: #7b3f00; /* Rich Brown */
+            --accent-gold: #f39c12; /* Goldenrod */
+            --text-light: #ecf0f1; /* Light Gray */
+            --text-dark: #34495e; /* Darker Blue-Gray */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Oswald', sans-serif;
+            color: var(--primary-dark);
+        }
+
+        /* Hero Section Specific Styles */
+        .hero-background {
+            /* Updated background image for a cozier pub feel */
+            background-image: url('https://images.unsplash.com/photo-1543007635-f09477610052?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Parallax effect */
+            filter: brightness(0.7); /* Darken slightly for text readability */
+        }
+
+        /* Custom button styles */
+        .btn-primary {
+            @apply inline-block px-8 py-3 rounded-full font-bold text-lg transition duration-300 ease-in-out;
+            background-color: var(--accent-gold);
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary:hover {
+            @apply scale-105;
+            background-color: #e67e22; /* Slightly darker orange on hover */
+        }
+
+        .btn-secondary {
+            @apply inline-block px-8 py-3 rounded-full font-bold text-lg border-2 border-white text-white transition duration-300 ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-secondary:hover {
+            @apply scale-105;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Lightbox styles */
+        .lightbox {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.9); /* Black w/ opacity */
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .lightbox.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .lightbox-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .lightbox-close:hover,
+        .lightbox-close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Scroll-to-top button */
+        #scrollToTopBtn {
+            display: none; /* Hidden by default */
+            position: fixed; /* Fixed/sticky position */
+            bottom: 30px; /* Place the button at the bottom of the page */
+            right: 30px; /* Place the button at the right */
+            z-index: 99; /* Make sure it does not overlap */
+            border: none; /* Remove borders */
+            outline: none; /* Remove outline */
+            background-color: var(--accent-gold); /* Set a background color */
+            color: white; /* Text color */
+            cursor: pointer; /* Add a mouse pointer on hover */
+            padding: 15px; /* Some padding */
+            border-radius: 50%; /* Rounded corners */
+            font-size: 18px; /* Increase font size */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        #scrollToTopBtn:hover {
+            background-color: #e67e22; /* Darker gold on hover */
+            transform: translateY(-2px);
+        }
+
+        /* Animation for sections on scroll */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100 antialiased">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 w-full bg-white bg-opacity-95 shadow-md z-50">
+        <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="#" class="text-3xl font-bold text-primary-dark tracking-tight" style="color: var(--primary-dark);">The <span class="text-accent-gold" style="color: var(--accent-gold);">Cozy</span> Pub</a>
+
+            <!-- Desktop Navigation -->
+            <ul class="hidden md:flex space-x-8">
+                <li><a href="#home" class="text-lg font-medium hover:text-accent-gold transition-colors duration-200" style="color: var(--primary-dark);">Home</a></li>
+                <li><a href="#menu" class="text-lg font-medium hover:text-accent-gold transition-colors duration-200" style="color: var(--primary-dark);">Menu</a></li>
+                <li><a href="#events" class="text-lg font-medium hover:text-accent-gold transition-colors duration-200" style="color: var(--primary-dark);">Events</a></li>
+                <li><a href="#gallery" class="text-lg font-medium hover:text-accent-gold transition-colors duration-200" style="color: var(--primary-dark);">Gallery</a></li>
+                <li><a href="#contact" class="text-lg font-medium hover:text-accent-gold transition-colors duration-200" style="color: var(--primary-dark);">Contact</a></li>
+            </ul>
+
+            <!-- Mobile Menu Button (Hamburger) -->
+            <button id="mobile-menu-button" class="md:hidden focus:outline-none">
+                <svg class="w-8 h-8 text-primary-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </nav>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu" class="md:hidden fixed top-0 left-0 w-full h-full bg-white bg-opacity-95 z-40 transform -translate-x-full transition-transform duration-300 ease-in-out">
+            <div class="flex justify-end p-6">
+                <button id="close-mobile-menu" class="focus:outline-none">
+                    <svg class="w-8 h-8 text-primary-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <ul class="flex flex-col items-center space-y-6 text-2xl mt-8">
+                <li><a href="#home" class="text-primary-dark hover:text-accent-gold transition-colors duration-200" style="color: var(--primary-dark);">Home</a></li>
+                <li><a href="#menu" class="text-primary-dark hover:text-accent-gold transition-colors duration-200" style="color: var(--primary-dark);">Menu</a></li>
+                <li><a href="#events" class="text-primary-dark hover:text-accent-gold transition-colors duration-200" style="color: var(--primary-dark);">Events</a></li>
+                <li><a href="#gallery" class="text-primary-dark hover:text-accent-gold transition-colors duration-200" style="color: var(--primary-dark);">Gallery</a></li>
+                <li><a href="#contact" class="text-primary-dark hover:text-accent-gold transition-colors duration-200" style="color: var(--primary-dark);">Contact</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="hero-background relative h-screen flex items-center justify-center text-center overflow-hidden">
+            <div class="relative z-10 p-8">
+                <!-- Adjusted text sizing for better mobile responsiveness -->
+                <h1 class="text-4xl sm:text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6 animate-fade-in-up">
+                    Your Neighborhood Gathering Spot
+                </h1>
+                <p class="text-xl md:text-2xl text-white mb-10 max-w-2xl mx-auto opacity-0 animate-fade-in delay-1s">
+                    Delicious food, a wide selection of craft beers, and a cozy atmosphere where friends become family.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 opacity-0 animate-fade-in delay-2s">
+                    <a href="#menu" class="btn-primary">Explore Our Menu</a>
+                    <a href="#contact" class="btn-secondary">Make a Reservation</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Us Section -->
+        <section id="about" class="container mx-auto px-6 py-20 fade-in-section">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="text-center md:text-left">
+                    <h2 class="text-4xl font-bold mb-6" style="color: var(--secondary-brown);">About The Cozy Pub</h2>
+                    <p class="text-lg leading-relaxed mb-6">
+                        Nestled in the heart of the city, The Cozy Corner Pub is more than just a place to eat and drink – it's a community hub. We've crafted a menu that celebrates classic pub fare with a modern twist, using locally sourced ingredients whenever possible.
+                    </p>
+                    <p class="text-lg leading-relaxed mb-6">
+                        Our taps feature an ever-changing selection of the finest craft beers from independent breweries, alongside a curated list of wines and spirits. Whether you're catching a game, enjoying live music, or simply unwinding with friends, The Cozy Corner Pub is where good times are always on tap.
+                    </p>
+                    <a href="#contact" class="btn-primary text-sm sm:text-base">Visit Us Today!</a>
+                </div>
+                <div>
+                    <img src="https://placehold.co/600x400/7b3f00/ffffff?text=Cozy+Interior" alt="Cozy Pub Interior" class="rounded-xl shadow-lg w-full h-auto object-cover">
+                </div>
+            </div>
+        </section>
+
+        <!-- Menu Section -->
+        <section id="menu" class="bg-gray-50 px-6 py-20 fade-in-section">
+            <div class="container mx-auto">
+                <h2 class="text-4xl font-bold text-center mb-12" style="color: var(--primary-dark);">Our Delicious Menu</h2>
+
+                <!-- Menu Categories (Simple Tabs - can be expanded with JS for filtering) -->
+                <div class="flex justify-center space-x-4 mb-10 flex-wrap gap-y-4">
+                    <button class="menu-tab px-6 py-3 rounded-full bg-accent-gold text-white font-semibold shadow-md transition hover:bg-e67e22" data-category="all">All</button>
+                    <button class="menu-tab px-6 py-3 rounded-full bg-gray-300 text-gray-800 font-semibold shadow-md transition hover:bg-gray-400" data-category="appetizers">Appetizers</button>
+                    <button class="menu-tab px-6 py-3 rounded-full bg-gray-300 text-gray-800 font-semibold shadow-md transition hover:bg-gray-400" data-category="mains">Mains</button>
+                    <button class="menu-tab px-6 py-3 rounded-full bg-gray-300 text-gray-800 font-semibold shadow-md transition hover:bg-gray-400" data-category="drinks">Drinks</button>
+                    <button class="menu-tab px-6 py-3 rounded-full bg-gray-300 text-gray-800 font-semibold shadow-md transition hover:bg-gray-400" data-category="desserts">Desserts</button>
+                </div>
+
+                <div id="menu-items-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Appetizers -->
+                    <div class="menu-item bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 fade-in-item" data-category="appetizers">
+                        <img src="https://placehold.co/100x100/7f8c8d/ffffff?text=Wings" alt="Buffalo Wings" class="rounded-full w-24 h-24 object-cover">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-1" style="color: var(--primary-dark);">Spicy Buffalo Wings</h3>
+                            <p class="text-gray-600 text-sm mb-2">Crispy wings tossed in our signature hot sauce, served with blue cheese.</p>
+                            <span class="text-lg font-bold text-accent-gold">$12.99</span>
+                        </div>
+                    </div>
+                    <div class="menu-item bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 fade-in-item" data-category="appetizers">
+                        <img src="https://placehold.co/100x100/7f8c8d/ffffff?text=Nachos" alt="Loaded Nachos" class="rounded-full w-24 h-24 object-cover">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-1" style="color: var(--primary-dark);">Loaded Pub Nachos</h3>
+                            <p class="text-gray-600 text-sm mb-2">Tortilla chips piled high with cheese, jalapeños, salsa, and sour cream.</p>
+                            <span class="text-lg font-bold text-accent-gold">$14.50</span>
+                        </div>
+                    </div>
+
+                    <!-- Mains -->
+                    <div class="menu-item bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 fade-in-item" data-category="mains">
+                        <img src="https://placehold.co/100x100/7f8c8d/ffffff?text=Burger" alt="Classic Pub Burger" class="rounded-full w-24 h-24 object-cover">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-1" style="color: var(--primary-dark);">The Cozy Classic Burger</h3>
+                            <p class="text-gray-600 text-sm mb-2">1/2lb patty with cheddar, lettuce, tomato, onion, and pickles. Served with fries.</p>
+                            <span class="text-lg font-bold text-accent-gold">$16.99</span>
+                        </div>
+                    </div>
+                    <div class="menu-item bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 fade-in-item" data-category="mains">
+                        <img src="https://placehold.co/100x100/7f8c8d/ffffff?text=FishChips" alt="Fish and Chips" class="rounded-full w-24 h-24 object-cover">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-1" style="color: var(--primary-dark);">Crispy Fish & Chips</h3>
+                            <p class="text-gray-600 text-sm mb-2">Beer-battered cod served with thick-cut fries and tartar sauce.</p>
+                            <span class="text-lg font-bold text-accent-gold">$17.95</span>
+                        </div>
+                    </div>
+                    <div class="menu-item bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 fade-in-item" data-category="mains">
+                        <img src="https://placehold.co/100x100/7f8c8d/ffffff?text=Steak" alt="Shepherd's Pie" class="rounded-full w-24 h-24 object-cover">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-1" style="color: var(--primary-dark);">Hearty Shepherd's Pie</h3>
+                            <p class="text-gray-600 text-sm mb-2">Ground beef and vegetables topped with creamy mashed potatoes.</p>
+                            <span class="text-lg font-bold text-accent-gold">$15.75</span>
+                        </div>
+                    </div>
+
+                    <!-- Drinks -->
+                    <div class="menu-item bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 fade-in-item" data-category="drinks">
+                        <img src="https://placehold.co/100x100/7f8c8d/ffffff?text=Beer" alt="Craft Beer Selection" class="rounded-full w-24 h-24 object-cover">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-1" style="color: var(--primary-dark);">Local Craft IPA (Rotating)</h3>
+                            <p class="text-gray-600 text-sm mb-2">Ask your server for today's selection of local IPAs on tap.</p>
+                            <span class="text-lg font-bold text-accent-gold">$8.00</span>
+                        </div>
+                    </div>
+                    <div class="menu-item bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 fade-in-item" data-category="drinks">
+                        <img src="https://placehold.co/100x100/7f8c8d/ffffff?text=Cocktail" alt="Signature Cocktail" class="rounded-full w-24 h-24 object-cover">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-1" style="color: var(--primary-dark);">Cozy Old Fashioned</h3>
+                            <p class="text-gray-600 text-sm mb-2">Bourbon, bitters, sugar, and an orange twist, perfected.</p>
+                            <span class="text-lg font-bold text-accent-gold">$11.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Desserts -->
+                    <div class="menu-item bg-white p-6 rounded-lg shadow-md flex items-center space-x-4 fade-in-item" data-category="desserts">
+                        <img src="https://placehold.co/100x100/7f8c8d/ffffff?text=Dessert" alt="Apple Crumble" class="rounded-full w-24 h-24 object-cover">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-1" style="color: var(--primary-dark);">Warm Apple Crumble</h3>
+                            <p class="text-gray-600 text-sm mb-2">Served with a scoop of vanilla bean ice cream.</p>
+                            <span class="text-lg font-bold text-accent-gold">$7.50</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Events Section -->
+        <section id="events" class="container mx-auto px-6 py-20 fade-in-section">
+            <h2 class="text-4xl font-bold text-center mb-12" style="color: var(--secondary-brown);">Upcoming Events & Specials</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Event Card 1 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
+                    <img src="https://placehold.co/600x350/2c3e50/ffffff?text=Trivia+Night" alt="Trivia Night" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-semibold mb-2" style="color: var(--primary-dark);">Trivia Night Thursdays!</h3>
+                        <p class="text-gray-600 text-sm mb-4">Every Thursday at 7 PM. Test your knowledge, win prizes, and enjoy discounted craft beers!</p>
+                        <span class="text-accent-gold font-semibold text-lg">Weekly Event</span>
+                    </div>
+                </div>
+
+                <!-- Event Card 2 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
+                    <img src="https://placehold.co/600x350/2c3e50/ffffff?text=Live+Music" alt="Live Music" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-semibold mb-2" style="color: var(--primary-dark);">Live Acoustic Saturdays</h3>
+                        <p class="text-gray-600 text-sm mb-4">Join us for live acoustic sets from local artists every Saturday starting at 8 PM.</p>
+                        <span class="text-accent-gold font-semibold text-lg">Every Saturday</span>
+                    </div>
+                </div>
+
+                <!-- Event Card 3 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden transform transition duration-300 hover:scale-105">
+                    <img src="https://placehold.co/600x350/2c3e50/ffffff?text=Happy+Hour" alt="Happy Hour" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-semibold mb-2" style="color: var(--primary-dark);">Daily Happy Hour</h3>
+                        <p class="text-gray-600 text-sm mb-4">Weekdays 4-6 PM: Half-price appetizers and discounted draft beers!</p>
+                        <span class="text-accent-gold font-semibold text-lg">Mon-Fri, 4-6 PM</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section id="gallery" class="bg-gray-50 px-6 py-20 fade-in-section">
+            <div class="container mx-auto">
+                <h2 class="text-4xl font-bold text-center mb-12" style="color: var(--primary-dark);">Our Gallery</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Gallery Images -->
+                    <img src="https://placehold.co/400x300/4a4a4a/ffffff?text=Pub+Food+1" alt="Delicious Pub Food" class="gallery-img w-full h-48 object-cover rounded-lg shadow-md cursor-pointer transform transition duration-300 hover:scale-105">
+                    <img src="https://placehold.co/400x300/4a4a4a/ffffff?text=Craft+Beer+2" alt="Craft Beer Selection" class="gallery-img w-full h-48 object-cover rounded-lg shadow-md cursor-pointer transform transition duration-300 hover:scale-105">
+                    <img src="https://placehold.co/400x300/4a4a4a/ffffff?text=Cozy+Spot+3" alt="Cozy Seating Area" class="gallery-img w-full h-48 object-cover rounded-lg shadow-md cursor-pointer transform transition duration-300 hover:scale-105">
+                    <img src="https://placehold.co/400x300/4a4a4a/ffffff?text=Bartender+4" alt="Bartender" class="gallery-img w-full h-48 object-cover rounded-lg shadow-md cursor-pointer transform transition duration-300 hover:scale-105">
+                    <img src="https://placehold.co/400x300/4a4a4a/ffffff?text=Happy+Crowd+5" alt="Happy Crowd" class="gallery-img w-full h-48 object-cover rounded-lg shadow-md cursor-pointer transform transition duration-300 hover:scale-105">
+                    <img src="https://placehold.co/400x300/4a4a4a/ffffff?text=Burger+Shot+6" alt="Burger Shot" class="gallery-img w-full h-48 object-cover rounded-lg shadow-md cursor-pointer transform transition duration-300 hover:scale-105">
+                    <img src="https://placehold.co/400x300/4a4a4a/ffffff?text=Live+Music+7" alt="Live Music Stage" class="gallery-img w-full h-48 object-cover rounded-lg shadow-md cursor-pointer transform transition duration-300 hover:scale-105">
+                    <img src="https://placehold.co/400x300/4a4a4a/ffffff?text=Exterior+8" alt="Pub Exterior" class="gallery-img w-full h-48 object-cover rounded-lg shadow-md cursor-pointer transform transition duration-300 hover:scale-105">
+                </div>
+            </div>
+        </section>
+
+        <!-- Lightbox for Gallery -->
+        <div id="lightbox" class="lightbox">
+            <span class="lightbox-close">&times;</span>
+            <img class="lightbox-content" id="lightbox-img">
+        </div>
+
+        <!-- Contact & Reservations Section -->
+        <section id="contact" class="container mx-auto px-6 py-20 fade-in-section">
+            <h2 class="text-4xl font-bold text-center mb-12" style="color: var(--secondary-brown);">Contact Us & Make a Reservation</h2>
+            <div class="grid md:grid-cols-2 gap-12">
+                <!-- Contact Info -->
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <h3 class="text-3xl font-semibold mb-6" style="color: var(--primary-dark);">Get In Touch</h3>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-lg mb-1" style="color: var(--secondary-brown);">Address:</h4>
+                        <p class="text-gray-700">123 Pub Street, Cozyville, CA 90210</p>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-lg mb-1" style="color: var(--secondary-brown);">Phone:</h4>
+                        <p class="text-gray-700">(123) 456-7890</p>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="font-bold text-lg mb-1" style="color: var(--secondary-brown);">Email:</h4>
+                        <p class="text-gray-700">info@cozycornerpub.com</p>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="font-bold text-lg mb-1" style="color: var(--secondary-brown);">Hours:</h4>
+                        <ul class="text-gray-700">
+                            <li>Mon-Thurs: 4 PM - 11 PM</li>
+                            <li>Fri-Sat: 12 PM - 1 AM</li>
+                            <li>Sunday: 12 PM - 10 PM</li>
+                        </ul>
+                    </div>
+                    <!-- Placeholder for Map -->
+                    <div class="w-full h-64 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 text-sm">
+                        [Google Maps Embed Placeholder]
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.250552787729!2d-122.41941568468165!3d37.77492977975819!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808580816a7f5a6d%3A0x6d8f8e0d4a1b0b7!2sSan%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1678901234567!5m2!1sen!2sus" width="100%" height="100%" style="border:0; border-radius: 8px;" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                </div>
+
+                <!-- Reservation Form -->
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <h3 class="text-3xl font-semibold mb-6" style="color: var(--primary-dark);">Make a Reservation</h3>
+                    <form id="reservation-form" class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-gray-700 font-medium mb-1">Your Name</label>
+                            <input type="text" id="name" name="name" required class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-gold">
+                            <p id="name-error" class="text-red-500 text-sm mt-1 hidden">Please enter your name.</p>
+                        </div>
+                        <div>
+                            <label for="email" class="block text-gray-700 font-medium mb-1">Email Address</label>
+                            <input type="email" id="email" name="email" required class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-gold">
+                            <p id="email-error" class="text-red-500 text-sm mt-1 hidden">Please enter a valid email address.</p>
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-gray-700 font-medium mb-1">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" required class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-gold">
+                            <p id="phone-error" class="text-red-500 text-sm mt-1 hidden">Please enter a valid phone number.</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="date" class="block text-gray-700 font-medium mb-1">Date</label>
+                                <input type="date" id="date" name="date" required class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-gold">
+                                <p id="date-error" class="text-red-500 text-sm mt-1 hidden">Please select a date.</p>
+                            </div>
+                            <div>
+                                <label for="time" class="block text-gray-700 font-medium mb-1">Time</label>
+                                <input type="time" id="time" name="time" required class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-gold">
+                                <p id="time-error" class="text-red-500 text-sm mt-1 hidden">Please select a time.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="guests" class="block text-gray-700 font-medium mb-1">Number of Guests</label>
+                            <input type="number" id="guests" name="guests" min="1" max="10" value="2" required class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-gold">
+                            <p id="guests-error" class="text-red-500 text-sm mt-1 hidden">Please specify number of guests (1-10).</p>
+                        </div>
+                        <div>
+                            <label for="message" class="block text-gray-700 font-medium mb-1">Special Requests (Optional)</label>
+                            <textarea id="message" name="message" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-gold"></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary w-full">Book Your Table</button>
+                    </form>
+                    <div id="form-message" class="mt-4 p-4 rounded-md text-center hidden"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-primary-dark text-white py-12" style="background-color: var(--primary-dark);">
+        <div class="container mx-auto px-6 grid md:grid-cols-3 gap-8 text-center md:text-left">
+            <div>
+                <h3 class="text-2xl font-bold mb-4">The Cozy Pub</h3>
+                <p class="text-gray-300 leading-relaxed">
+                    Your go-to spot for great food, excellent drinks, and unforgettable moments. Cheers!
+                </p>
+            </div>
+            <div>
+                <h3 class="text-2xl font-bold mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="#home" class="text-gray-300 hover:text-accent-gold transition-colors duration-200">Home</a></li>
+                    <li><a href="#menu" class="text-gray-300 hover:text-accent-gold transition-colors duration-200">Menu</a></li>
+                    <li><a href="#events" class="text-gray-300 hover:text-accent-gold transition-colors duration-200">Events</a></li>
+                    <li><a href="#gallery" class="text-gray-300 hover:text-accent-gold transition-colors duration-200">Gallery</a></li>
+                    <li><a href="#contact" class="text-gray-300 hover:text-accent-gold transition-colors duration-200">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-2xl font-bold mb-4">Follow Us</h3>
+                <div class="flex justify-center md:justify-start space-x-4">
+                    <a href="https://facebook.com" target="_blank" class="text-gray-300 hover:text-accent-gold transition-colors duration-200">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.04C6.517 2.04 2 6.557 2 12.04c0 4.908 3.57 9.07 8.242 9.957V14.65h-2.54v-2.61h2.54V9.7c0-2.52 1.537-3.9 3.77-3.9 1.09 0 2.02.08 2.296.118v2.64h-1.57c-1.242 0-1.48.59-1.48 1.455v1.92h2.956l-.423 2.61h-2.533v7.348C18.43 21.11 22 16.95 22 12.04c0-5.483-4.517-9.998-9.999-9.998z"/></svg>
+                    </a>
+                    <a href="https://instagram.com" target="_blank" class="text-gray-300 hover:text-accent-gold transition-colors duration-200">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07c3.252.148 4.771 1.691 4.919 4.919.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.148 3.252-1.691 4.771-4.919 4.919-.058.012-1.266.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.148-4.771-1.691-4.919-4.919-.058-1.266-.07-1.646-.07-4.85s.012-3.584.07-4.85c.148-3.252 1.691-4.771 4.919-4.919.058-.012 1.266-.07 4.85-.07zm0 2.102c-3.21 0-3.606.014-4.871.071-2.029.09-3.149.988-3.238 3.238-.057 1.265-.07 1.66-.07 4.871s.014 3.606.07 4.871c.09 2.029.988 3.149 3.238 3.238 1.265.057 1.66.07 4.871.07s3.606-.014 4.871-.07c2.029-.09 3.149-.988 3.238-3.238.057-1.265.07-1.66.07-4.871s-.014-3.606-.07-4.871c-.09-2.029-.988-3.149-3.238-3.238-1.265-.057-1.66-.07-4.871-.07zM12 6.865a5.135 5.135 0 100 10.27 5.135 5.135 0 000-10.27zm0 1.802a3.333 3.333 0 110 6.666 3.333 3.333 0 010-6.666zm5.338-3.205a1.2 1.2 0 100 2.4 1.2 1.2 0 000-2.4z"/></svg>
+                    </a>
+                    <!-- Add more social media icons as needed -->
+                </div>
+            </div>
+        </div>
+        <div class="text-center text-gray-400 mt-8">
+            &copy; 2024 The Cozy Corner Pub. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Scroll-to-top Button -->
+    <button id="scrollToTopBtn" title="Go to top">▲</button>
+
+    <script>
+        // Smooth Scrolling for all internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+
+                // Close mobile menu if open
+                const mobileMenu = document.getElementById('mobile-menu');
+                if (mobileMenu.classList.contains('translate-x-0')) {
+                    mobileMenu.classList.remove('translate-x-0');
+                    mobileMenu.classList.add('-translate-x-full');
+                }
+            });
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const closeMobileMenuButton = document.getElementById('close-mobile-menu');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('-translate-x-full');
+            mobileMenu.classList.add('translate-x-0');
+        });
+
+        closeMobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('translate-x-0');
+            mobileMenu.classList.add('-translate-x-full');
+        });
+
+        // Gallery Lightbox
+        const galleryImages = document.querySelectorAll('.gallery-img');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxClose = document.querySelector('.lightbox-close');
+
+        galleryImages.forEach(img => {
+            img.addEventListener('click', () => {
+                lightbox.classList.add('open');
+                lightboxImg.src = img.src;
+                lightboxImg.alt = img.alt;
+            });
+        });
+
+        lightboxClose.addEventListener('click', () => {
+            lightbox.classList.remove('open');
+        });
+
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                lightbox.classList.remove('open');
+            }
+        });
+
+        // Reservation Form Validation
+        const reservationForm = document.getElementById('reservation-form');
+        const formMessage = document.getElementById('form-message');
+
+        reservationForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            let isValid = true;
+            const name = document.getElementById('name');
+            const email = document.getElementById('email');
+            const phone = document.getElementById('phone');
+            const date = document.getElementById('date');
+            const time = document.getElementById('time');
+            const guests = document.getElementById('guests');
+
+            // Basic validation checks
+            if (name.value.trim() === '') {
+                document.getElementById('name-error').classList.remove('hidden');
+                isValid = false;
+            } else {
+                document.getElementById('name-error').classList.add('hidden');
+            }
+
+            // Simple email regex for client-side validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email.value.trim())) {
+                document.getElementById('email-error').classList.remove('hidden');
+                isValid = false;
+            } else {
+                document.getElementById('email-error').classList.add('hidden');
+            }
+
+            // Phone number validation (simple check for digits for portfolio)
+            const phoneRegex = /^\d{10,}$/; // At least 10 digits
+            if (!phoneRegex.test(phone.value.trim())) {
+                document.getElementById('phone-error').classList.remove('hidden');
+                isValid = false;
+            } else {
+                document.getElementById('phone-error').classList.add('hidden');
+            }
+
+            if (date.value.trim() === '') {
+                document.getElementById('date-error').classList.remove('hidden');
+                isValid = false;
+            } else {
+                document.getElementById('date-error').classList.add('hidden');
+            }
+
+            if (time.value.trim() === '') {
+                document.getElementById('time-error').classList.remove('hidden');
+                isValid = false;
+            } else {
+                document.getElementById('time-error').classList.add('hidden');
+            }
+
+            if (parseInt(guests.value) < 1 || parseInt(guests.value) > 10 || guests.value.trim() === '') {
+                document.getElementById('guests-error').classList.remove('hidden');
+                isValid = false;
+            } else {
+                document.getElementById('guests-error').classList.add('hidden');
+            }
+
+            if (isValid) {
+                // If all validations pass, simulate form submission
+                formMessage.classList.remove('hidden');
+                formMessage.classList.remove('bg-red-100', 'text-red-700');
+                formMessage.classList.add('bg-green-100', 'text-green-700');
+                formMessage.textContent = 'Reservation request sent successfully! We will confirm shortly.';
+                reservationForm.reset(); // Clear the form
+            } else {
+                formMessage.classList.remove('hidden');
+                formMessage.classList.remove('bg-green-100', 'text-green-700');
+                formMessage.classList.add('bg-red-100', 'text-red-700');
+                formMessage.textContent = 'Please correct the errors in the form.';
+            }
+        });
+
+        // Scroll to Top Button functionality
+        const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+
+        window.onscroll = function() {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                scrollToTopBtn.style.display = "block";
+            } else {
+                scrollToTopBtn.style.display = "none";
+            }
+        };
+
+        scrollToTopBtn.addEventListener("click", () => {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        });
+
+        // Intersection Observer for fade-in animations on scroll
+        const fadeInSections = document.querySelectorAll('.fade-in-section');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const sectionObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                // FIX: Changed 'entry.is-visible' to 'entry.isIntersecting'
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target); // Stop observing once visible
+                }
+            });
+        }, observerOptions);
+
+        fadeInSections.forEach(section => {
+            sectionObserver.observe(section);
+        });
+
+        // Menu filtering (simple implementation for portfolio)
+        const menuTabs = document.querySelectorAll('.menu-tab');
+        const menuItems = document.querySelectorAll('.menu-item');
+
+        menuTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active style from all tabs
+                menuTabs.forEach(t => {
+                    t.classList.remove('bg-accent-gold', 'text-white');
+                    t.classList.add('bg-gray-300', 'text-gray-800');
+                });
+
+                // Add active style to clicked tab
+                tab.classList.remove('bg-gray-300', 'text-gray-800');
+                tab.classList.add('bg-accent-gold', 'text-white');
+
+                const category = tab.dataset.category;
+
+                menuItems.forEach(item => {
+                    if (category === 'all' || item.dataset.category === category) {
+                        item.style.display = 'flex'; // Show item
+                    } else {
+                        item.style.display = 'none'; // Hide item
+                    }
+                });
+            });
+        });
+
+        // Set the 'All' tab as active by default on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const allTab = document.querySelector('.menu-tab[data-category="all"]');
+            if (allTab) {
+                allTab.click(); // Simulate a click to activate and filter
+            }
+        });
+
+    </script>
+</body>
+</html>
